@@ -1,46 +1,54 @@
-# 🏭 Enterprise Edge IIoT Gateway: PLC to Cloud & SQL
+# 🏭 Enterprise Industrial IoT Gateway  
+### PLC → Edge → SQL → Cloud → Analytics
 
-## 📌 Executive Summary
-This project demonstrates a production-grade Industrial IoT (IIoT) data pipeline. It bridges the Operational Technology (OT) and Information Technology (IT) divide by deploying a Python-based Edge Gateway. The system acquires real-time telemetry from a simulated manufacturing process, routes it to a local Enterprise SQL Historian for SCADA visualization, and simultaneously pushes it to a cloud MQTT broker for bidirectional mobile control.
-
----
-
-## 🏗️ System Architecture (Logical Flow)
-
-The system operates on a decoupled, multi-threaded architecture to ensure that data logging, cloud publishing, and UI rendering never block each other.
-
-1. **OT Data Acquisition:** A simulated CODESYS PLC generates process variables (`CV`, `PV`, `Motor Status`). PTC Kepware Server exposes these tags via **OPC UA**.
-2. **Edge Gateway (`DATA_LOGGER.PY`):** A custom Python service that continuously polls the OPC UA server. It acts as the central router:
-   * **Route A (Local Historian):** Ingests telemetry into a **MySQL** relational database using parameterized queries to prevent injection and ensure data integrity.
-   * **Route B (Cloud Telemetry):** Packages data into JSON payloads and publishes them to an **MQTT** broker.
-3. **Enterprise Visualization (`DASHBOARD.PY`):** A **Streamlit** SCADA application that queries the MySQL historian to render live production trends and metrics.
-4. **Remote Control:** An Android application subscribes to the MQTT broker, allowing remote operators to monitor the machine and safely write setpoints or trigger momentary Start/Stop logic back to the PLC.
+![system](PLC_KW_1.jpeg)
 
 ---
 
-## 🌐 Network Architecture & Topology
+# 📌 Executive Summary
+This project demonstrates a **production-grade Industry 4.0 architecture** that bridges OT (factory floor) and IT (cloud & analytics).
 
-This architecture respects standard industrial network segmentation, separating raw machine control from enterprise viewing and remote cloud access.
+A Python-based edge gateway collects real-time machine data from a PLC via OPC UA, logs it into an enterprise SQL historian, and publishes it to the cloud via MQTT for mobile monitoring and remote control.
 
-* **[Level 1] Control Network:** CODESYS SoftPLC running cyclic logic.
-* **[Level 2] Supervisory Network:** * PTC Kepware Server (OPC UA Aggregator).
-  * Python Edge Gateway (Protocol Translator).
-  * Local MySQL Server (Process Historian).
-* **[Level 3] Plant/IT Network:** Streamlit Web Dashboard (Local Host/Intranet accessible).
-* **[Level 4/5] Cloud/External:** HiveMQ Cloud Broker communicating over secure port 8883 (TLS/SSL) to the remote Android operator device.
+The system mirrors real smart-factory infrastructure used in modern manufacturing environments.
 
 ---
 
-## ⚙️ Core Technologies & Stack
-* **Languages:** Python 3 (Pandas, PyMySQL, OPCUA, Paho-MQTT)
-* **Industrial Protocols:** OPC UA, MQTT
-* **Database:** MySQL Server (InnoDB)
-* **Visualization:** Streamlit
-* **Automation Software:** CODESYS V3, PTC Kepware Server EX
+# 🎯 Key Capabilities
+- Real-time PLC data acquisition (OPC UA)
+- Edge gateway architecture (Python)
+- SQL historian logging (MySQL)
+- Cloud telemetry (MQTT TLS)
+- Mobile monitoring & control
+- SCADA-style analytics dashboard
+- AI/ML-ready production dataset
 
 ---
 
-## 🛡️ Key Engineering Features
-* **Fault Tolerance:** The Edge Gateway features automatic database reconnection logic to survive network drops without crashing.
-* **Repeatable Read Handling:** The dashboard connection logic actively commits transactions before querying to bypass MySQL snapshot isolation, ensuring a true real-time feed.
-* **Momentary Safety Logic:** Cloud control buttons implement "Press" and "Release" MQTT payloads, allowing the gateway to write boolean true/false states safely to the PLC.
+# 🖼️ System Preview
+
+## PLC + Kepware Layer
+![plc](PLC_KW_2.jpeg)
+
+## Mobile MQTT Monitoring
+![mobile](IOT_MQTT_1.jpeg)
+
+## MySQL Historian
+![mysql](mysql_DB_1.png)
+
+## Live Analytics Dashboard
+![dash](mysql_DB_2.png)
+
+---
+
+# 🏗️ Full System Architecture
+
+```mermaid
+flowchart LR
+    PLC[PLC Machine] --> Kepware[Kepware OPC Server]
+    Kepware --> Edge[Python Edge Gateway]
+    Edge --> MySQL[(MySQL Historian)]
+    Edge --> MQTT[Cloud MQTT Broker]
+    MQTT --> Mobile[Mobile App]
+    MySQL --> Dashboard[Streamlit SCADA Dashboard]
+    MySQL --> AI[Future AI/ML Engine]
