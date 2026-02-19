@@ -52,3 +52,43 @@ flowchart LR
     MQTT --> Mobile[Mobile App]
     MySQL --> Dashboard[Streamlit SCADA Dashboard]
     MySQL --> AI[Future AI/ML Engine]
+```
+## 🌐 Network Architecture (Industrial IIoT Topology)
+
+This architecture follows a standard ISA-95 layered industrial model separating control, supervisory, IT, and cloud layers.
+
+```mermaid
+flowchart TD
+
+subgraph L0["Level 0-1 • Machine & Control Layer"]
+PLC[PLC / CODESYS Runtime]
+IO[Sensors & Actuators]
+PLC --- IO
+end
+
+subgraph L2["Level 2 • Supervisory / Edge Layer"]
+Kepware[Kepware OPC UA Server]
+Edge[Python Edge Gateway<br>OPC UA + MQTT + SQL]
+MySQL[(MySQL Historian)]
+end
+
+subgraph L3["Level 3 • Plant IT Layer"]
+Dashboard[Streamlit SCADA Dashboard]
+LocalUsers[Plant Engineers / Managers]
+end
+
+subgraph L4["Level 4-5 • Cloud & Remote"]
+MQTT[HiveMQ Cloud Broker<br>TLS 8883]
+Mobile[Mobile MQTT App]
+AI[Future AI/Analytics Server]
+end
+
+PLC -->|Industrial Ethernet| Kepware
+Kepware -->|OPC UA| Edge
+Edge -->|SQL TCP/IP| MySQL
+MySQL --> Dashboard
+Dashboard --> LocalUsers
+
+Edge -->|MQTT TLS| MQTT
+MQTT --> Mobile
+MySQL --> AI
